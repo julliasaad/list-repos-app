@@ -64,41 +64,42 @@ const REPOSITORIES_OF_A_USER = gql`
   }
   `
 function Repositories(props) {
-    const login = props.login;
-    if(props.search) {
-      return (
-        <View style={styles.listContainer}>
-          <ApolloProvider client={client}>
-              <Query query={REPOSITORIES_OF_A_USER} variables={{login}}>
-                {({ loading, error, data }) => {
-                  if (loading) return loading;
-                  if (error) {
-                    return (
-                      <View style={styles.errorContainer}>
-                        <Text style={styles.listTitle}><Icon name="warning" size={18} color="red"/> Sorry, user {login} not found :(</Text>
-                        <Text>Put a valid username and try again!</Text>
-                      </View>
-                    );
-                  } 
-
+  const login = props.login;
+  if(props.search) {
+    return (
+      <View style={styles.listContainer}>
+        <ApolloProvider client={client}>
+            <Query query={REPOSITORIES_OF_A_USER} variables={{login}}>
+              {({ loading, error, data }) => {
+                if (loading) return loading;
+                
+                if (error) {
                   return (
-                    <View>
-                      <Text style={styles.listTitle}>Last 10 {login}'s repositories</Text>
-                      {data.user.repositories.edges.map((repo) => (
-                        <Text key={repo.node.name} style={styles.repo}><Icon name="folder-o" size={18} color="#1b8cdc" /> {repo.node.name}</Text>
-                      ))}
+                    <View style={styles.errorContainer}>
+                      <Text style={styles.listTitle}><Icon name="warning" size={18} color="red"/> Sorry, user {login} not found :(</Text>
+                      <Text>Put a valid username and try again!</Text>
                     </View>
                   );
-                }}
-              </Query>
-          </ApolloProvider>
-        </View>
-      );
-    } else {
-      return (
-        <Text></Text>
-      );
-    }
+                } 
+
+                return (
+                  <View>
+                    <Text style={styles.listTitle}>Last 10 {login}'s repositories</Text>
+                    {data.user.repositories.edges.map((repo) => (
+                      <Text key={repo.node.name} style={styles.repo}><Icon name="folder-o" size={18} color="#1b8cdc" /> {repo.node.name}</Text>
+                    ))}
+                  </View>
+                );
+              }}
+            </Query>
+        </ApolloProvider>
+      </View>
+    );
+  } else {
+    return (
+      <Text></Text>
+    );
+  }
 };
 
 export default class ListRepos extends Component {
@@ -117,7 +118,6 @@ export default class ListRepos extends Component {
   }
   
   search() {
-    console.log('new text: ' + this.state.newSearch);
     this.setState({
       text: this.state.newSearch,
       search: true
