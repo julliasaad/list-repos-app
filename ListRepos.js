@@ -10,6 +10,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { onError } from 'apollo-link-error';
 import apolloLogger from 'apollo-link-logger';
 import { compose } from 'recompose';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const httpLink = new HttpLink({
   uri: 'https://api.github.com/graphql',
@@ -32,17 +33,17 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 const link = ApolloLink.from([
   errorLink,
   apolloLogger,
-  httpLink,
+  httpLink
 ]);
 
 const cache = new InMemoryCache({
   logger: console.log,
-  loggerEnabled: true,
+  loggerEnabled: true
 });
 
 const client = new ApolloClient({
   link,
-  cache,
+  cache
 });
 
 const REPOSITORIES_OF_A_USER = gql`
@@ -64,24 +65,39 @@ const REPOSITORIES_OF_A_USER = gql`
   `
 function Repositories(props) {
     const login = props.login;
-    console.log('login:' + login);
     if(props.search) {
       return (
-        <ApolloProvider client={client}>
-            <Query query={REPOSITORIES_OF_A_USER} variables={{login}}>
-              {({ loading, error, data }) => {
-                if (loading) return loading;
-                if (error) return error;
-          
-                return data.user.repositories.edges.map((repo) => (
-                    <Text key={repo.node.name}>{repo.node.name}</Text>
-                ));
-              }}
-            </Query>
+        <View style={styles.listContainer}>
+          <ApolloProvider client={client}>
+              <Query query={REPOSITORIES_OF_A_USER} variables={{login}}>
+                {({ loading, error, data }) => {
+                  if (loading) return loading;
+                  if (error) {
+                    return (
+                      <View style={styles.errorContainer}>
+                        <Text style={styles.listTitle}><Icon name="warning" size={18} color="red"/> Sorry, user {login} not found :(</Text>
+                        <Text>Put a valid username and try again!</Text>
+                      </View>
+                    );
+                  } 
+
+                  return (
+                    <View>
+                      <Text style={styles.listTitle}>Last 10 {login}'s repositories</Text>
+                      {data.user.repositories.edges.map((repo) => (
+                        <Text key={repo.node.name} style={styles.repo}><Icon name="folder-o" size={18} color="#1b8cdc" /> {repo.node.name}</Text>
+                      ))}
+                    </View>
+                  );
+                }}
+              </Query>
           </ApolloProvider>
+        </View>
       );
     } else {
-      return <Text>List Comes Here</Text>;    
+      return (
+        <Text></Text>
+      );
     }
 };
 
@@ -95,12 +111,15 @@ export default class ListRepos extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { inputPlaceholder: 'Put the @githubUsername here...', text: '', search: false };
+    this.state = { inputPlaceholder: 'Put the "username" here...', text: '', search: false, newSearch: '' };
     this.search = this.search.bind(this);
+    this.newSearch = '';
   }
   
   search() {
+    console.log('new text: ' + this.state.newSearch);
     this.setState({
+      text: this.state.newSearch,
       search: true
     });
   }
@@ -112,19 +131,21 @@ export default class ListRepos extends Component {
         <TextInput
           style={styles.input}
           placeholder={this.state.inputPlaceholder}
-          onChangeText={(text) => this.setState({text})}
+          autoFocus={true}
+          onChangeText={(text) => this.setState({newSearch: text})}
         />
         <Button 
           style={styles.searchButton}
           onPress={this.search}
           title="Search"
+          color="#1b8cdc"
         />
         <Repositories search={this.state.search} login={this.state.text}/>
       </View>
     );
   }
 }
- 
+
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -132,8 +153,23 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     backgroundColor: '#fff'   
   },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  listContainer: {
+    paddingTop: 20,
+  },
   searchButton: {
     marginBottom: 15
+  },
+  listTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 5
+  },
+  repo: {
+    padding: 2
   },
   welcomeText: {
     color: '#666',

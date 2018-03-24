@@ -6,18 +6,15 @@ export default class Welcome extends Component {
   static navigationOptions = {
     title: "List Repos App",
     headerTitleStyle: {
-      fontWeight: '300',
+      fontWeight: '300'
     }
-  }
-
-  start() {
   }
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcomeText}> Welcome to the List Repos App!</Text>
-        <Image source={require('./img/octocat.jpg')}  style={{width: 80, height: 80, marginBottom: 15}}/>
+        <Image source={require('./img/octocat.jpg')}  style={{width: 90, height: 90, marginBottom: 15}}/>
         <Button 
           onPress={() => this.props.navigation.navigate('ListRepos')}
           title="Let's start"
@@ -34,8 +31,7 @@ const styles = StyleSheet.create({
     padding: 20,
     flex: 1,
     backgroundColor: '#fff',
-    // justifyContent: 'center',
-    alignItems: 'center'  
+    alignItems: 'center'
   },
   welcomeText: {
     color: '#1b8cdc',
@@ -45,5 +41,3 @@ const styles = StyleSheet.create({
     marginBottom: 15
   }
 });
-
-{/* <Image source={pic} style={{width: 193, height: 110}}/> */}
