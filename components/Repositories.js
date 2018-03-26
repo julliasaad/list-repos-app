@@ -7,43 +7,18 @@ import { ApolloClient } from 'apollo-client';
 import { ApolloLink } from 'apollo-link';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
-import { onError } from 'apollo-link-error';
-import apolloLogger from 'apollo-link-logger';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styled from 'styled-components';
 
-const httpLink = new HttpLink({
-  uri: 'https://api.github.com/graphql',
-  headers: {
-    authorization: 'bearer 69df52cb1f2e110618d25f71e7d4526153ca75a6'
-  }
-});
-
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.map(({ message, locations, path }) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-      ),
-    );
-
-  if (networkError) console.log(`[Network error]: ${networkError}`);
-});
-
-const link = ApolloLink.from([
-  errorLink,
-  apolloLogger,
-  httpLink
-]);
-
-const cache = new InMemoryCache({
-  logger: console.log,
-  loggerEnabled: true
-});
-
 const client = new ApolloClient({
-  link,
-  cache
+  link: new HttpLink(
+    {
+      uri: 'https://api.github.com/graphql',
+      headers: {
+        authorization: 'bearer 69df52cb1f2e110618d25f71e7d4526153ca75a6'
+      }
+    }),
+  cache: new InMemoryCache()
 });
 
 const REPOSITORIES_OF_A_USER = gql`
